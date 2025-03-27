@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
+import 'package:sumplier/model/company.dart';
+import '../model/api_result.dart';
 
 class ApiService {
   final Dio _dio = Dio(); // Dio instance
 
   ApiService() {
-    // Global ayarları yapalım
-    _dio.options.baseUrl = 'https://yourapi.com'; // Base URL
+    // Base URL'i güncelliyoruz
+    _dio.options.baseUrl = 'https://api.sumplier.com/SumplierAPI';
     _dio.options.headers = {'Content-Type': 'application/json'};
   }
 
@@ -46,6 +48,44 @@ class ApiService {
       return response;
     } catch (e) {
       throw Exception("API DELETE Error: $e");
+    }
+  }
+
+  // getCompanyLogin
+  Future<ApiResult<Company>> getCompanyLogin(String email, String password) async {
+    try {
+      final response = await _dio.post('/GetCompanyLogin', 
+        data: {
+          'email': email,
+          'password': password
+        }
+      );
+      
+      if (response.statusCode == 200) {
+        final company = Company.fromJson(response.data);
+        return ApiResult.success(company);
+      } else {
+        return ApiResult.failure('Şirket girişi başarısız');
+      }
+    } catch (e) {
+      return ApiResult.failure("Şirket girişi hatası: $e");
+    }
+  }
+
+  // Foe example if it would be list
+  Future<ApiResult<List<Company>>> getCompanyList() async {
+    try {
+      final response = await _dio.get('/GetCompanies');
+      
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = response.data;
+        final companies = jsonList.map((json) => Company.fromJson(json)).toList();
+        return ApiResult.success(companies);
+      } else {
+        return ApiResult.failure('Şirket listesi alınamadı');
+      }
+    } catch (e) {
+      return ApiResult.failure("Şirket listesi hatası: $e");
     }
   }
 }
