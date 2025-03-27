@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sumplier/screen/cart_screen/view/cart_page.dart';
 
+import 'database/PrefHelper.dart';
 
-void main() {
+
+Future<void> main() async {
+  await PrefHelper.init();
   runApp(const MyApp());
 }
 
