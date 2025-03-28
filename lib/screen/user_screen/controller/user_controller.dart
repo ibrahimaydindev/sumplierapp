@@ -4,6 +4,7 @@ import 'package:logger/logger.dart';
 import 'package:sumplier/api/api_service.dart';
 import 'package:sumplier/database/pref_helper.dart';
 import '../../../model/user_model.dart';
+import '../../../listener/ApiObjectListener.dart'; // ApiObjectListener import edilmelidir
 
 class UserController extends GetxController {
   final ApiService _apiService = ApiService();
@@ -34,22 +35,25 @@ class UserController extends GetxController {
     rememberMe.value = PrefHelper.getBool('remember_me') ?? false;
   }
 
-  // Kullanıcı giriş işlemi
-  Future<User?> getUserLogin(String email, String password) async {
+  Future<void> getUserLogin(String email, String password) async {
     try {
       isLoading.value = true;
-      user.value = await _apiService.getUserLogin(email, password);
-
-      // Eğer giriş başarılıysa ve "Beni Hatırla" seçiliyse bilgileri kaydet
-      if (user.value != null) {
-        await saveCredentials(email, password);
-        await PrefHelper.saveModel('user', user.value!);
-      }
+      await _apiService.getUserLogin(
+        email: email,
+        password: password,
+        listener: ApiObjectListener<User>(
+          onSuccess: (userData) {
+            user.value = userData;
+          },
+          onFail: (errorMessage) {
+            Logger().e("Şirket girişi hatası: $errorMessage");
+          },
+        ),
+      );
     } catch (e) {
-      Logger().e("$e");
+      Logger().e("controller Kullanıcı girişi hatası: $e");
     } finally {
       isLoading.value = false;
     }
-    return user.value;
   }
 }

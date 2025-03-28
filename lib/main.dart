@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sumplier/screen/dashboard_screen/view/dashboard_page.dart';
 import 'package:sumplier/screen/login_screen/view/login_page.dart';
+import 'package:sumplier/screen/splash_screen/splash_page.dart';
 import 'package:sumplier/screen/user_screen/view/user_page.dart';
 
 import 'database/pref_helper.dart';
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
       getPages: [
         GetPage(name: '/LoginPage', page: () => LoginPage()),
         GetPage(name: '/UserPage', page: () => UserPage()),
+        GetPage(name: '/SplashPage', page: () => SplashPage()),
         GetPage(name: '/DashboardPage', page: () => DashboardPage())
       ],
     );

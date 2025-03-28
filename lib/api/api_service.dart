@@ -1,7 +1,13 @@
 import 'package:dio/dio.dart' as dio; // Alias Dio
 import 'package:get/get.dart'; // GetX library (no need to alias here)
-import 'package:sumplier/model/company.dart';
-import 'package:sumplier/model/user_model.dart';
+import '../listener/ApiObjectListener.dart';
+import '../listener/ApiListListener.dart';
+import '../model/category.dart';
+import '../model/company_account.dart';
+import '../model/menu.dart';
+import '../model/product.dart';
+import '../model/company.dart';
+import '../model/user_model.dart';
 
 class ApiService extends GetxService {
   final dio.Dio _dio = dio.Dio(); // Dio instance with alias
@@ -15,66 +21,32 @@ class ApiService extends GetxService {
     _dio.options.receiveTimeout = const Duration(seconds: 15);
   }
 
-  // Genel GET isteği
-  Future<dio.Response> get(String endpoint) async {
-    try {
-      final response = await _dio.get(endpoint);
-      return response;
-    } catch (e) {
-      throw Exception("API GET Error: $e");
-    }
-  }
-
-  // Genel POST isteği
-  Future<dio.Response> post(String endpoint, Map<String, dynamic> data) async {
-    try {
-      final response = await _dio.post(endpoint, data: data);
-      return response;
-    } catch (e) {
-      throw Exception("API POST Error: $e");
-    }
-  }
-
-  // Genel PUT isteği
-  Future<dio.Response> put(String endpoint, Map<String, dynamic> data) async {
-    try {
-      final response = await _dio.put(endpoint, data: data);
-      return response;
-    } catch (e) {
-      throw Exception("API PUT Error: $e");
-    }
-  }
-
-  // Genel DELETE isteği
-  Future<dio.Response> delete(String endpoint) async {
-    try {
-      final response = await _dio.delete(endpoint);
-      return response;
-    } catch (e) {
-      throw Exception("API DELETE Error: $e");
-    }
-  }
-
-  // Şirket listesi almak için GET isteği
-  Future<List<Company>> getCompanyList() async {
+  // Şirket listesi almak için GET isteği (Eski API yoluyla)
+  Future<void> getCompanyList({
+    required ApiListListener<Company> listener,
+  }) async {
     try {
       final dio.Response response = await _dio.get('/GetCompanies');
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = response.data;
         final companies =
-            jsonList.map((json) => Company.fromJson(json)).toList();
-        return companies; // List<Company> döndürüyoruz
+        jsonList.map((json) => Company.fromJson(json)).toList();
+        listener.onSuccess(companies); // Başarıyla listeyi geri döndür
       } else {
-        throw Exception('Şirket listesi alınamadı');
+        listener.onFail('Şirket listesi alınamadı');
       }
     } catch (e) {
-      throw Exception("Şirket listesi hatası: $e");
+      listener.onFail("Şirket listesi hatası: $e");
     }
   }
 
-  // Şirket girişi yapmak için GET isteği
-  Future<Company?> getCompanyLogin(String email, String password) async {
+  // Şirket girişi yapmak için GET isteği (Eski API yoluyla)
+  Future<void> getCompanyLogin({
+    required String email,
+    required String password,
+    required ApiObjectListener<Company> listener,
+  }) async {
     try {
       final dio.Response response = await _dio.get(
         '/Company/GetCompanyLogin',
@@ -82,16 +54,21 @@ class ApiService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        return Company.fromJson(response.data); // Company modelini döndürüyoruz
+        listener.onSuccess(Company.fromJson(response.data)); // Company döndür
       } else {
-        throw Exception("api Şirket girişi hatası: null");
+        listener.onFail("Şirket girişi hatası: null");
       }
     } catch (e) {
-      throw Exception("api Şirket girişi hatası: $e");
+      listener.onFail("Şirket girişi hatası: $e");
     }
   }
 
-  Future<User?> getUserLogin(String email, String password) async {
+  // Kullanıcı girişi yapmak için GET isteği (Eski API yoluyla)
+  Future<void> getUserLogin({
+    required String email,
+    required String password,
+    required ApiObjectListener<User> listener,
+  }) async {
     try {
       final dio.Response response = await _dio.get(
         '/Users/GetUserLogin',
@@ -99,12 +76,131 @@ class ApiService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        return User.fromJson(response.data); // User modelini döndürüyoruz
+        listener.onSuccess(User.fromJson(response.data)); // User döndür
       } else {
-        throw Exception("api Kullanıcı girişi hatası: null");
+        listener.onFail("Kullanıcı girişi hatası: null");
       }
     } catch (e) {
-      throw Exception("api Kullanıcı girişi hatası: $e");
+      listener.onFail("Kullanıcı girişi hatası: $e");
+    }
+  }
+
+  // Menüleri çeken fonksiyon (Yeni listener'lar ile)
+  Future<void> fetchMenus({
+    required int companyCode,
+    required int resellerCode,
+    required ApiListListener<Menu> listener,
+  }) async {
+    try {
+      final dio.Response response = await _dio.get(
+        '/Menu/GetMenu',
+        queryParameters: {
+          'companyCode': companyCode,
+          'resellerCode': resellerCode,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        List<Menu> menus = (response.data as List)
+            .map((menu) => Menu.fromJson(menu))
+            .toList();
+        if (menus.isNotEmpty) {
+          listener.onSuccess(menus);
+        } else {
+          listener.onFail("Menüler bulunamadı.");
+        }
+      } else {
+        listener.onFail("Menüler alınamadı: ${response.statusCode}");
+      }
+    } catch (e) {
+      listener.onFail(e.toString());
+    }
+  }
+
+  // Kategorileri çeken fonksiyon (Yeni listener'lar ile)
+  Future<void> fetchCategories({
+    required int companyCode,
+    required int resellerCode,
+    required ApiListListener<Category> listener,
+  }) async {
+    try {
+      final dio.Response response = await _dio.get(
+        '/CustomerCategory/GetCategory',
+        queryParameters: {
+          'companyCode': companyCode,
+          'resellerCode': resellerCode,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        List<Category> categories = (response.data as List)
+            .map((category) => Category.fromJson(category))
+            .toList();
+        if (categories.isNotEmpty) {
+          listener.onSuccess(categories);
+        } else {
+          listener.onFail("Kategoriler bulunamadı.");
+        }
+      } else {
+        listener.onFail("Kategoriler alınamadı: ${response.statusCode}");
+      }
+    } catch (e) {
+      listener.onFail(e.toString());
+    }
+  }
+
+  // Ürünleri çeken fonksiyon (Yeni listener'lar ile)
+  Future<void> fetchProducts({
+    required int companyCode,
+    required int resellerCode,
+    required ApiListListener<Product> listener,
+  }) async {
+    try {
+      final dio.Response response = await _dio.get(
+        '/Product/GetProductAll',
+        queryParameters: {'companyCode': companyCode, 'resellerCode': resellerCode,},
+      );
+
+      if (response.statusCode == 200) {
+        List<Product> products = (response.data as List)
+            .map((product) => Product.fromJson(product))
+            .toList();
+        if (products.isNotEmpty) {
+          listener.onSuccess(products);
+        } else {
+          listener.onFail("Ürünler bulunamadı.");
+        }
+      } else {
+        listener.onFail("Ürünler alınamadı: ${response.statusCode}");
+      }
+    } catch (e) {
+      listener.onFail(e.toString());
+    }
+  }
+
+  // Şirket hesaplarını çeken fonksiyon (Yeni listener'lar ile)
+  Future<void> fetchCompanyAccounts({
+    required int companyCode,
+    required int resellerCode,
+    required ApiObjectListener<CompanyAccount> listener,
+  }) async {
+    try {
+      final dio.Response response = await _dio.get(
+        '/CompanyAccount/GetCompanyAccountAll',
+        queryParameters: {
+          'companyCode': companyCode,
+          'resellerCode': resellerCode,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        CompanyAccount companyAccount = CompanyAccount.fromJson(response.data);
+        listener.onSuccess(companyAccount);
+      } else {
+        listener.onFail("Hesap alınamadı: ${response.statusCode}");
+      }
+    } catch (e) {
+      listener.onFail(e.toString());
     }
   }
 }
