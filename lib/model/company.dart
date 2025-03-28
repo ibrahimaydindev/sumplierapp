@@ -3,19 +3,19 @@ class Company {
   final int companyCode;
   final String companyName;
   final bool isActive;
-  final int resellerCode;
   final String email;
   final String password;
   final String? image;
+  final int type;
 
   Company({
     required this.id,
     required this.companyCode,
     required this.companyName,
     required this.isActive,
-    required this.resellerCode,
     required this.email,
     required this.password,
+    required this.type,
     this.image,
   });
 
@@ -26,10 +26,10 @@ class Company {
       companyCode: json['companyCode'],
       companyName: json['companyName'],
       isActive: json['isActive'],
-      resellerCode: json['resellerCode'],
       email: json['email'],
       password: json['password'],
       image: json['image'],
+      type: json['type'],
     );
   }
 
@@ -40,10 +40,10 @@ class Company {
       'companyCode': companyCode,
       'companyName': companyName,
       'isActive': isActive,
-      'resellerCode': resellerCode,
       'email': email,
       'password': password,
       'image': image,
+      'type': type,
     };
   }
 }

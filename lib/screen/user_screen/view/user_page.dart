@@ -126,9 +126,10 @@ class _UserPageState extends State<UserPage> {
                               userController.isLoading.value = true;
 
                               // Kullanıcı giriş işlemi
-                              final user = await userController.getUserLogin(email, password);
+                              await userController.getUserLogin(email, password); // Burada dönüş değeri alınmaz
 
-                              if (user != null) {
+
+                              if (userController.user.value != null) {
                                 Get.snackbar(
                                   "Başarılı",
                                   "Giriş başarılı!",
