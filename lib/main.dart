@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sumplier/screen/dashboard_screen/view/dashboard_page.dart';
 import 'package:sumplier/screen/login_screen/view/login_page.dart';
 import 'package:sumplier/screen/user_screen/view/user_page.dart';
 
@@ -11,7 +12,7 @@ Future<void> main() async {
   await PrefHelper.init();
 
   bool isLogin = PrefHelper.containsKey(ConfigKey.company.name);
-  runApp(MyApp(initialRoute: isLogin ? '/UserPage' : '/LoginPage'));
+  runApp(MyApp(initialRoute: isLogin ? '/DashboardPage' : '/LoginPage'));
 }
 
 class MyApp extends StatelessWidget {
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
       getPages: [
         GetPage(name: '/LoginPage', page: () => LoginPage()),
         GetPage(name: '/UserPage', page: () => UserPage()),
+        GetPage(name: '/DashboardPage', page: () => DashboardPage())
       ],
     );
   }

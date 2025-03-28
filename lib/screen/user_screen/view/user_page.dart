@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sumplier/database/pref_helper.dart';
+import 'package:sumplier/screen/dashboard_screen/view/dashboard_page.dart';
 import 'package:sumplier/screen/user_screen/controller/user_controller.dart';
 
 class UserPage extends StatefulWidget {
@@ -102,53 +101,80 @@ class _UserPageState extends State<UserPage> {
               SizedBox(height: size.height * 0.03),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final email = userController.emailController.text.trim();
-                    final password = userController.passwordController.text.trim();
+                child: Obx(() {
+                  // Butonun loading durumunu kontrol et
+                  return ElevatedButton(
+                    onPressed: userController.isLoading.value
+                        ? null // Eğer loading durumundaysa buton devre dışı
+                        : () async {
+                            final email = userController.emailController.text.trim();
+                            final password = userController.passwordController.text.trim();
 
-                    if (email.isEmpty || password.isEmpty) {
-                      Get.snackbar(
-                        "Hata",
-                        "Email ve şifre alanları boş bırakılamaz.",
-                        backgroundColor: Colors.red,
-                        colorText: Colors.white,
-                        snackPosition: SnackPosition.TOP,
-                      );
-                      return;
-                    }
+                            if (email.isEmpty || password.isEmpty) {
+                              Get.snackbar(
+                                "Hata",
+                                "Email ve şifre alanları boş bırakılamaz.",
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                                snackPosition: SnackPosition.TOP,
+                              );
+                              return;
+                            }
 
-                    final user = await userController.getUserLogin(email, password);
+                            try {
+                              // Loading durumunu başlat
+                              userController.isLoading.value = true;
 
-                    if (user != null) {
-                      Get.snackbar(
-                        "Başarılı",
-                        "Giriş başarılı!",
-                        backgroundColor: Colors.green,
-                        colorText: Colors.white,
-                        snackPosition: SnackPosition.TOP,
-                      );
-                    } else {
-                      Get.snackbar(
-                        "Hata",
-                        "Giriş başarısız. Lütfen bilgilerinizi kontrol edin.",
-                        backgroundColor: Colors.red,
-                        colorText: Colors.white,
-                        snackPosition: SnackPosition.TOP,
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: size.height * 0.02),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
+                              // Kullanıcı giriş işlemi
+                              final user = await userController.getUserLogin(email, password);
+
+                              if (user != null) {
+                                Get.snackbar(
+                                  "Başarılı",
+                                  "Giriş başarılı!",
+                                  backgroundColor: Colors.green,
+                                  colorText: Colors.white,
+                                  snackPosition: SnackPosition.TOP,
+                                );
+                                Get.to(() => DashboardPage());
+                              } else {
+                                Get.snackbar(
+                                  "Hata",
+                                  "Giriş başarısız. Lütfen bilgilerinizi kontrol edin.",
+                                  backgroundColor: Colors.red,
+                                  colorText: Colors.white,
+                                  snackPosition: SnackPosition.TOP,
+                                );
+                              }
+                            } catch (e) {
+                              Get.snackbar(
+                                "Hata",
+                                "Bir hata oluştu: ${e.toString()}",
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                                snackPosition: SnackPosition.TOP,
+                              );
+                            } finally {
+                              // Loading durumunu durdur
+                              userController.isLoading.value = false;
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: size.height * 0.02),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    "Giriş Yap",
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
+                    child: userController.isLoading.value
+                        ? CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                        : const Text(
+                            "Giriş Yap",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                  );
+                }),
               ),
             ],
           ),

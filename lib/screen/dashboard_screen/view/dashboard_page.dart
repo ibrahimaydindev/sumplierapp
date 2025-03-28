@@ -113,9 +113,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             child: Text("Evet",style: TextStyle(color: Colors.white),),
                           ),
                           ElevatedButton(
-                            
                             onPressed: () {
-                              // Hayır butonuna basıldığında sadece Bottom Sheet kapanır
                               Navigator.of(context).pop();
                             },
                             style: OutlinedButton.styleFrom(
