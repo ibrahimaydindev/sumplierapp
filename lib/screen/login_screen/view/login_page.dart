@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:sumplier/database/pref_helper.dart';
+import 'package:sumplier/enum/config_key.dart';
+import 'package:sumplier/enum/info_message.dart';
+import 'package:sumplier/screen/user_screen/view/user_page.dart';
+
+import '../controller/login_controller.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  LoginPage({super.key});
+
+  final loginController = Get.put(LoginController());
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final RxBool isPasswordHidden = true.obs; // Şifre gizleme durumu
 
   @override
   Widget build(BuildContext context) {
@@ -12,29 +24,26 @@ class LoginPage extends StatelessWidget {
       body: Center(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            horizontal: size.width * 0.1, // Ekran genişliğine göre padding
+            horizontal: size.width * 0.1,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Logo or Title
               Center(
                 child: Text(
                   "Sumplier",
                   style: TextStyle(
-                    fontSize: size.width * 0.07, // Ekran genişliğine göre font boyutu
+                    fontSize: size.width * 0.07,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
                 ),
               ),
-              SizedBox(height: size.height * 0.05), // Ekran yüksekliğine göre boşluk
-
-              // Email TextField
+              SizedBox(height: size.height * 0.05),
               TextField(
+                controller: emailController,
                 decoration: InputDecoration(
-                  labelText: "Email",
-                  labelStyle: TextStyle(color: Colors.grey),
+                  labelText: "Şirket Email",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),
                   ),
@@ -43,55 +52,121 @@ class LoginPage extends StatelessWidget {
                 keyboardType: TextInputType.emailAddress,
               ),
               SizedBox(height: size.height * 0.02),
-
-              // Password TextField
-              TextField(
-                decoration: InputDecoration(
-                  labelText: "Şifre",
-                  labelStyle: TextStyle(color: Colors.grey),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  prefixIcon: Icon(Icons.lock, color: Colors.grey),
-                  suffixIcon: Icon(Icons.visibility_off, color: Colors.grey),
-                ),
-                obscureText: true,
-              ),
-              SizedBox(height: size.height * 0.01),
-
-              // Forgot Password Button
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    // Forgot password logic
-                  },
-                  child: Text(
-                    "Şifremi Unuttum?",
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                ),
-              ),
-              SizedBox(height: size.height * 0.03),
-
-              // Login Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Login logic
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: size.height * 0.02),
-                    shape: RoundedRectangleBorder(
+              Obx(() {
+                return TextField(
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    labelText: "Şifre",
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
                     ),
+                    prefixIcon: Icon(Icons.lock, color: Colors.grey),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        isPasswordHidden.value
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        isPasswordHidden.value = !isPasswordHidden.value; // Şifre görünürlüğünü değiştir
+                      },
+                    ),
                   ),
-                  child: Text(
-                    "Giriş Yap",
-                    style: TextStyle(fontSize: size.width * 0.05),
-                  ),
-                ),
+                  obscureText: isPasswordHidden.value, // Şifre gizleme durumu
+                );
+              }),
+              SizedBox(height: size.height * 0.03),
+              SizedBox(
+                width: double.infinity,
+                child: Obx(() {
+                  // Butonun loading durumunu kontrol et
+                  return ElevatedButton(
+                    onPressed: loginController.isLoading.value
+                        ? null // Eğer loading durumundaysa buton devre dışı
+                        : () async {
+                            final email = emailController.text.trim();
+                            final password = passwordController.text.trim();
+
+                            if (email.isEmpty || password.isEmpty) {
+                              Get.snackbar(
+                                "Hata",
+                                "Email ve şifre alanları boş bırakılamaz.",
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                              return;
+                            }
+
+                            try {
+                              // Loading durumunu başlat
+                              loginController.isLoading.value = true;
+
+                              // Login işlemini başlat
+                              await loginController.getCompanyLogin(
+                                  email, password);
+
+                              if (loginController.company.value != null) {
+                                if (PrefHelper.containsKey(
+                                    ConfigKey.company.name)) {
+                                  PrefHelper.remove(ConfigKey.company.name);
+                                }
+
+                                PrefHelper.saveModel(
+                                  ConfigKey.company.name,
+                                  loginController.company.value!,
+                                );
+
+                                // Kullanıcı sayfasına yönlendir
+                                Get.to(() => UserPage());
+                                Get.snackbar(
+                                  "Başarılı",
+                                  "Giriş başarılı.",
+                                  backgroundColor: Colors.green,
+                                  colorText: Colors.white,
+                                  snackPosition: SnackPosition.TOP,
+                                );
+                              } else {
+                                Get.snackbar(
+                                  InfoMessage.generalError.message,
+                                  "Giriş başarısız. Lütfen bilgilerinizi kontrol edin.",
+                                  backgroundColor: Colors.red,
+                                  colorText: Colors.white,
+                                  snackPosition: SnackPosition.TOP,
+                                );
+                              }
+                            } catch (e) {
+                              Get.snackbar(
+                                InfoMessage.generalError.message,
+                                "Bir hata oluştu: ${e.toString()}",
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                                snackPosition: SnackPosition.TOP,
+                              );
+                            } finally {
+                              // Loading durumunu durdur
+                              loginController.isLoading.value = false;
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: size.height * 0.02,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                    child: loginController.isLoading.value
+                        ? CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                        : Text(
+                            "Giriş Yap",
+                            style: TextStyle(fontSize: size.width * 0.05),
+                          ),
+                  );
+                }),
               ),
             ],
           ),

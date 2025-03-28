@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:sumplier/screen/cart_screen/view/cart_page.dart';
+import 'package:get/get.dart';
+import 'package:sumplier/screen/login_screen/view/login_page.dart';
+import 'package:sumplier/screen/user_screen/view/user_page.dart';
 
-import 'database/PrefHelper.dart';
-
+import 'database/pref_helper.dart';
+import 'enum/config_key.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await PrefHelper.init();
-  runApp(const MyApp());
+
+  bool isLogin = PrefHelper.containsKey(ConfigKey.company.name);
+  runApp(MyApp(initialRoute: isLogin ? '/UserPage' : '/LoginPage'));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String initialRoute;
+  const MyApp({super.key, required this.initialRoute});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      home: CartPage(),
+      initialRoute: initialRoute,
+      getPages: [
+        GetPage(name: '/LoginPage', page: () => LoginPage()),
+        GetPage(name: '/UserPage', page: () => UserPage()),
+      ],
     );
   }
 }
