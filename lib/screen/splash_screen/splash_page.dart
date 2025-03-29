@@ -3,17 +3,22 @@ import 'package:get/get.dart';
 import 'splash_controller.dart';
 
 class SplashPage extends StatelessWidget {
-  const SplashPage({super.key});
+  SplashPage({super.key});
+
+  final splashController = Get.put(SplashController());
 
   @override
   Widget build(BuildContext context) {
-    // Controller'ı bağla
-    final SplashController controller = Get.put(SplashController());
-
     return Scaffold(
-      backgroundColor: Colors.white, // Beyaz arka plan
+      backgroundColor: Colors.white,
       body: Center(
-        child: CircularProgressIndicator(), // Ortada dönen progress
+        child: Obx(() {
+          if (splashController.isLoading.value) {
+            return CircularProgressIndicator();
+          } else {
+            return Text("Yükleme tamamlandı!");
+          }
+        }),
       ),
     );
   }

@@ -76,7 +76,7 @@ class ApiService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        listener.onSuccess(User.fromJson(response.data)); // User döndür
+        listener.onSuccess(User.fromJson(response.data)); // return User
       } else {
         listener.onFail("Kullanıcı girişi hatası: null");
       }
@@ -178,11 +178,10 @@ class ApiService extends GetxService {
     }
   }
 
-  // Şirket hesaplarını çeken fonksiyon (Yeni listener'lar ile)
   Future<void> fetchCompanyAccounts({
     required int companyCode,
     required int resellerCode,
-    required ApiObjectListener<CompanyAccount> listener,
+    required ApiListListener<CompanyAccount> listener,
   }) async {
     try {
       final dio.Response response = await _dio.get(
@@ -194,13 +193,19 @@ class ApiService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        CompanyAccount companyAccount = CompanyAccount.fromJson(response.data);
-        listener.onSuccess(companyAccount);
+        List<CompanyAccount> accounts = (response.data as List)
+            .map((json) => CompanyAccount.fromJson(json))
+            .toList();
+        if (accounts.isNotEmpty) {
+          listener.onSuccess(accounts);
+        } else {
+          listener.onFail("Şirket hesapları bulunamadı.");
+        }
       } else {
-        listener.onFail("Hesap alınamadı: ${response.statusCode}");
+        listener.onFail("Hesaplar alınamadı: ${response.statusCode}");
       }
     } catch (e) {
-      listener.onFail(e.toString());
+      listener.onFail("Hesaplar alınırken hata oluştu: $e");
     }
   }
 }

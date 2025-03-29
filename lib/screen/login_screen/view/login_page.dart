@@ -113,11 +113,6 @@ class LoginPage extends StatelessWidget {
                                   PrefHelper.remove(ConfigKey.company.name);
                                 }
 
-                                PrefHelper.saveModel(
-                                  ConfigKey.company.name,
-                                  loginController.company.value!,
-                                );
-
                                 // Kullanıcı sayfasına yönlendir
                                 Get.to(() => UserPage());
                                 Get.snackbar(

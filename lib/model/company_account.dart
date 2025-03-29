@@ -1,6 +1,6 @@
 class CompanyAccount {
   final int id;
-  int accountCode;
+  final int accountCode;
   final String accountName;
   final String? address;
   final String? region;
