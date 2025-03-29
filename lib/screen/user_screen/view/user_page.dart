@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sumplier/screen/dashboard_screen/view/dashboard_page.dart';
+import 'package:sumplier/screen/splash_screen/splash_page.dart';
 import 'package:sumplier/screen/user_screen/controller/user_controller.dart';
 
 class UserPage extends StatefulWidget {
@@ -18,7 +19,6 @@ class _UserPageState extends State<UserPage> {
   @override
   void initState() {
     super.initState();
-    userController.loadSavedCredentials();
   }
 
   @override
@@ -126,8 +126,7 @@ class _UserPageState extends State<UserPage> {
                               userController.isLoading.value = true;
 
                               // Kullanıcı giriş işlemi
-                              await userController.getUserLogin(email, password); // Burada dönüş değeri alınmaz
-
+                              await userController.getUserLogin(email, password);
 
                               if (userController.user.value != null) {
                                 Get.snackbar(
@@ -137,7 +136,7 @@ class _UserPageState extends State<UserPage> {
                                   colorText: Colors.white,
                                   snackPosition: SnackPosition.TOP,
                                 );
-                                Get.to(() => DashboardPage());
+                                Get.to(() => SplashPage());
                               } else {
                                 Get.snackbar(
                                   "Hata",

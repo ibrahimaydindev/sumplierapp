@@ -1,19 +1,26 @@
 import 'package:get/get.dart';
+import 'package:sumplier/Config/config.dart';
 import '../../api/api_service.dart';
 import '../../listener/ApiListListener.dart';
-import '../../listener/ApiObjectListener.dart';
 import '../../model/category.dart';
+import '../../model/company.dart';
 import '../../model/company_account.dart';
 import '../../model/menu.dart';
 import '../../model/product.dart';
+import '../../model/user_model.dart';
 
 class SplashController extends GetxController {
-  final ApiService _apiService = Get.find<ApiService>();
+  final ApiService _apiService = ApiService();
 
   List<Menu> menus = [];
   List<Category> categories = [];
   List<Product> products = [];
   List<CompanyAccount> companyAccounts = [];
+
+  Company currentCompany = Config.instance.getCurrentCompany();
+  User currentUser = Config.instance.getCurrentUser();
+
+  var isLoading = true.obs;
 
   @override
   void onInit() {
@@ -27,8 +34,8 @@ class SplashController extends GetxController {
 
   void fetchMenus() {
     _apiService.fetchMenus(
-      companyCode: 1,
-      resellerCode: 100,
+      companyCode: currentCompany.companyCode,
+      resellerCode: currentUser.id,
       listener: ApiListListener<Menu>(
         onSuccess: (data) {
           menus = data;
@@ -80,14 +87,14 @@ class SplashController extends GetxController {
     _apiService.fetchCompanyAccounts(
       companyCode: 1,
       resellerCode: 100,
-      listener: ApiObjectListener<CompanyAccount>(
+      listener: ApiListListener<CompanyAccount>(
         onSuccess: (data) {
-          companyAccounts.add(data); // Single account added to the list
-          print("Hesap yüklendi: ${companyAccounts.length}");
-          startApp();
+          companyAccounts = data;
+          print("Accounts yüklendi: ${companyAccounts.length}");
+          fetchCompanyAccounts();
         },
         onFail: (error) {
-          print("Hesapları çekerken hata oluştu: $error");
+          print("Accounts çekerken hata oluştu: $error");
         },
       ),
     );
@@ -95,6 +102,13 @@ class SplashController extends GetxController {
 
   void startApp() {
     print("Tüm API çağrıları tamamlandı. Uygulama başlatılıyor...");
-    Get.offNamed('/home'); // Ana ekrana yönlendirme
+
+    Config.instance.checkSetMenus(menus);
+    Config.instance.checkSetCategories(categories);
+    Config.instance.checkSetProducts(products);
+    Config.instance.checkSetCompanyAccounts(companyAccounts);
+
+    isLoading.value = false;
+    Get.offNamed('/home');
   }
 }

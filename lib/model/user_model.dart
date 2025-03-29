@@ -1,5 +1,7 @@
 class User {
   final int id;
+  final int companyCode;
+  final int customerCode;
   final int userCode;
   final String name;
   final String? surname;
@@ -7,14 +9,14 @@ class User {
   final String password;
   final int loginType;
   final bool isActive;
-  final int companyCode;
-  final String roleCode;
-  final int resellerCode;
+  final int roleCode;
   final String? image;
   final bool deleted;
 
   User({
     required this.id,
+    required this.companyCode,
+    required this.customerCode,
     required this.userCode,
     required this.name,
     this.surname,
@@ -22,9 +24,7 @@ class User {
     required this.password,
     required this.loginType,
     required this.isActive,
-    required this.companyCode,
     required this.roleCode,
-    required this.resellerCode,
     this.image,
     required this.deleted,
   });
@@ -33,6 +33,8 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
+      companyCode: json['companyCode'],
+      customerCode: json['customerCode'],
       userCode: json['userCode'],
       name: json['name'],
       surname: json['surname'],
@@ -40,9 +42,7 @@ class User {
       password: json['password'],
       loginType: json['loginType'],
       isActive: json['isActive'],
-      companyCode: json['companyCode'],
       roleCode: json['roleCode'],
-      resellerCode: json['resellerCode'],
       image: json['image'],
       deleted: json['deleted'],
     );
@@ -60,8 +60,8 @@ class User {
       'loginType': loginType,
       'isActive': isActive,
       'companyCode': companyCode,
+      'customerCode' : customerCode,
       'roleCode': roleCode,
-      'resellerCode': resellerCode,
       'image': image,
       'deleted': deleted,
     };
