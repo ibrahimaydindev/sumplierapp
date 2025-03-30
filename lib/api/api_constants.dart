@@ -1,3 +1,3 @@
 class ApiConstants {
-  static const String BASE_URL = 'https://api.sumplier.com/SumplierAPI';
+  static const String baseUrl = 'https://api.sumplier.com/SumplierAPI';
 }

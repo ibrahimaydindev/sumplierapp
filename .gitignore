@@ -46,3 +46,6 @@ app.*.map.json
 /linux/flutter
 /macos/Flutter
 /windows/flutter
+devtools_options.yaml
+/linux
+linux/flutter/generated_plugin_registrant.cc

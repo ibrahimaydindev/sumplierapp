@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart' as dio; // Alias Dio
 import 'package:get/get.dart'; // GetX library (no need to alias here)
+import 'package:sumplier/model/customer.dart';
 import '../listener/ApiObjectListener.dart';
 import '../listener/ApiListListener.dart';
-import '../model/category.dart';
-import '../model/company_account.dart';
-import '../model/menu.dart';
-import '../model/product.dart';
-import '../model/company.dart';
+import '../model/customer_category.dart';
+import '../model/customer_account.dart';
+import '../model/customer_menu.dart';
+import '../model/customer_product.dart';
 import '../model/user_model.dart';
 
 class ApiService extends GetxService {
@@ -21,40 +21,21 @@ class ApiService extends GetxService {
     _dio.options.receiveTimeout = const Duration(seconds: 15);
   }
 
-  // Şirket listesi almak için GET isteği (Eski API yoluyla)
-  Future<void> getCompanyList({
-    required ApiListListener<Company> listener,
-  }) async {
-    try {
-      final dio.Response response = await _dio.get('/GetCompanies');
-
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonList = response.data;
-        final companies =
-        jsonList.map((json) => Company.fromJson(json)).toList();
-        listener.onSuccess(companies); // Başarıyla listeyi geri döndür
-      } else {
-        listener.onFail('Şirket listesi alınamadı');
-      }
-    } catch (e) {
-      listener.onFail("Şirket listesi hatası: $e");
-    }
-  }
 
   // Şirket girişi yapmak için GET isteği (Eski API yoluyla)
-  Future<void> getCompanyLogin({
+  Future<void> getCustomerLogin({
     required String email,
     required String password,
-    required ApiObjectListener<Company> listener,
+    required ApiObjectListener<Customer> listener,
   }) async {
     try {
       final dio.Response response = await _dio.get(
-        '/Company/GetCompanyLogin',
+        '/Customer/GetCustomerLogin',
         queryParameters: {'email': email, 'password': password},
       );
 
       if (response.statusCode == 200) {
-        listener.onSuccess(Company.fromJson(response.data)); // Company döndür
+        listener.onSuccess(Customer.fromJson(response.data)); // Customer döndür
       } else {
         listener.onFail("Şirket girişi hatası: null");
       }
@@ -89,20 +70,22 @@ class ApiService extends GetxService {
   Future<void> fetchMenus({
     required int companyCode,
     required int resellerCode,
-    required ApiListListener<Menu> listener,
+    required int customerCode,
+    required ApiListListener<CustomerMenu> listener,
   }) async {
     try {
       final dio.Response response = await _dio.get(
-        '/Menu/GetMenu',
+        '/CustomerMenu/GetMenu',
         queryParameters: {
           'companyCode': companyCode,
           'resellerCode': resellerCode,
+          'customerCode': customerCode,
         },
       );
 
       if (response.statusCode == 200) {
-        List<Menu> menus = (response.data as List)
-            .map((menu) => Menu.fromJson(menu))
+        List<CustomerMenu> menus = (response.data as List)
+            .map((menu) => CustomerMenu.fromJson(menu))
             .toList();
         if (menus.isNotEmpty) {
           listener.onSuccess(menus);
@@ -121,7 +104,8 @@ class ApiService extends GetxService {
   Future<void> fetchCategories({
     required int companyCode,
     required int resellerCode,
-    required ApiListListener<Category> listener,
+    required int customerCode,
+    required ApiListListener<CustomerCategory> listener,
   }) async {
     try {
       final dio.Response response = await _dio.get(
@@ -129,12 +113,13 @@ class ApiService extends GetxService {
         queryParameters: {
           'companyCode': companyCode,
           'resellerCode': resellerCode,
+          'customerCode': customerCode,
         },
       );
 
       if (response.statusCode == 200) {
-        List<Category> categories = (response.data as List)
-            .map((category) => Category.fromJson(category))
+        List<CustomerCategory> categories = (response.data as List)
+            .map((category) => CustomerCategory.fromJson(category))
             .toList();
         if (categories.isNotEmpty) {
           listener.onSuccess(categories);
@@ -153,17 +138,22 @@ class ApiService extends GetxService {
   Future<void> fetchProducts({
     required int companyCode,
     required int resellerCode,
-    required ApiListListener<Product> listener,
+    required int customerCode,
+    required ApiListListener<CustomerProduct> listener,
   }) async {
     try {
       final dio.Response response = await _dio.get(
-        '/Product/GetProductAll',
-        queryParameters: {'companyCode': companyCode, 'resellerCode': resellerCode,},
+        '/CustomerProduct/GetProductAll',
+        queryParameters: {
+          'companyCode': companyCode,
+          'resellerCode': resellerCode,
+          'customerCode': customerCode,
+        },
       );
 
       if (response.statusCode == 200) {
-        List<Product> products = (response.data as List)
-            .map((product) => Product.fromJson(product))
+        List<CustomerProduct> products = (response.data as List)
+            .map((product) => CustomerProduct.fromJson(product))
             .toList();
         if (products.isNotEmpty) {
           listener.onSuccess(products);
@@ -181,20 +171,22 @@ class ApiService extends GetxService {
   Future<void> fetchCompanyAccounts({
     required int companyCode,
     required int resellerCode,
-    required ApiListListener<CompanyAccount> listener,
+    required int customerCode,
+    required ApiListListener<CustomerAccount> listener,
   }) async {
     try {
       final dio.Response response = await _dio.get(
-        '/CompanyAccount/GetCompanyAccountAll',
+        '/CustomerAccount/GetCustomerAccountAll',
         queryParameters: {
           'companyCode': companyCode,
           'resellerCode': resellerCode,
+          'customerCode': customerCode,
         },
       );
 
       if (response.statusCode == 200) {
-        List<CompanyAccount> accounts = (response.data as List)
-            .map((json) => CompanyAccount.fromJson(json))
+        List<CustomerAccount> accounts = (response.data as List)
+            .map((json) => CustomerAccount.fromJson(json))
             .toList();
         if (accounts.isNotEmpty) {
           listener.onSuccess(accounts);

@@ -104,15 +104,10 @@ class LoginPage extends StatelessWidget {
                               loginController.isLoading.value = true;
 
                               // Login işlemini başlat
-                              await loginController.getCompanyLogin(
+                              await loginController.getCustomerLogin(
                                   email, password);
 
-                              if (loginController.company.value != null) {
-                                if (PrefHelper.containsKey(
-                                    ConfigKey.company.name)) {
-                                  PrefHelper.remove(ConfigKey.company.name);
-                                }
-
+                              if (loginController.customer.value != null) {
                                 // Kullanıcı sayfasına yönlendir
                                 Get.to(() => UserPage());
                                 Get.snackbar(
