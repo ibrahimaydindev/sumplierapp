@@ -1,4 +1,4 @@
-class Category {
+class CustomerCategory {
   final int id;
   final int categoryCode;
   final String categoryName;
@@ -6,7 +6,7 @@ class Category {
   final int companyCode;
   final int menuCode;
 
-  Category({
+  CustomerCategory({
     required this.id,
     required this.categoryCode,
     required this.categoryName,
@@ -16,8 +16,8 @@ class Category {
   });
 
   // Factory constructor for creating a Category instance from JSON
-  factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(
+  factory CustomerCategory.fromJson(Map<String, dynamic> json) {
+    return CustomerCategory(
       id: json['id'],
       categoryCode: json['categoryCode'],
       categoryName: json['categoryName'],

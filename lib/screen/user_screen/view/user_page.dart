@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sumplier/screen/dashboard_screen/view/dashboard_page.dart';
 import 'package:sumplier/screen/splash_screen/splash_page.dart';
 import 'package:sumplier/screen/user_screen/controller/user_controller.dart';
 

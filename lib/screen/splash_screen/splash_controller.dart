@@ -1,23 +1,24 @@
 import 'package:get/get.dart';
 import 'package:sumplier/Config/config.dart';
+import 'package:sumplier/model/customer.dart';
+import 'package:sumplier/screen/dashboard_screen/view/dashboard_page.dart';
 import '../../api/api_service.dart';
 import '../../listener/ApiListListener.dart';
-import '../../model/category.dart';
-import '../../model/company.dart';
-import '../../model/company_account.dart';
-import '../../model/menu.dart';
-import '../../model/product.dart';
+import '../../model/customer_category.dart';
+import '../../model/customer_account.dart';
+import '../../model/customer_menu.dart';
+import '../../model/customer_product.dart';
 import '../../model/user_model.dart';
 
 class SplashController extends GetxController {
   final ApiService _apiService = ApiService();
 
-  List<Menu> menus = [];
-  List<Category> categories = [];
-  List<Product> products = [];
-  List<CompanyAccount> companyAccounts = [];
+  List<CustomerMenu> menus = [];
+  List<CustomerCategory> categories = [];
+  List<CustomerProduct> products = [];
+  List<CustomerAccount> companyAccounts = [];
 
-  Company currentCompany = Config.instance.getCurrentCompany();
+  Customer currentCustomer = Config.instance.getCurrentCustomer();
   User currentUser = Config.instance.getCurrentUser();
 
   var isLoading = true.obs;
@@ -34,9 +35,10 @@ class SplashController extends GetxController {
 
   void fetchMenus() {
     _apiService.fetchMenus(
-      companyCode: currentCompany.companyCode,
-      resellerCode: currentUser.id,
-      listener: ApiListListener<Menu>(
+      companyCode: currentCustomer.companyCode,
+      resellerCode: currentCustomer.resellerCode,
+      customerCode: currentCustomer.customerCode,
+      listener: ApiListListener<CustomerMenu>(
         onSuccess: (data) {
           menus = data;
           print("Menüler yüklendi: ${menus.length}");
@@ -51,9 +53,10 @@ class SplashController extends GetxController {
 
   void fetchCategories() {
     _apiService.fetchCategories(
-      companyCode: 1,
-      resellerCode: 100,
-      listener: ApiListListener<Category>(
+      companyCode: currentCustomer.companyCode,
+      resellerCode: currentCustomer.resellerCode,
+      customerCode: currentCustomer.customerCode,
+      listener: ApiListListener<CustomerCategory>(
         onSuccess: (data) {
           categories = data;
           print("Kategoriler yüklendi: ${categories.length}");
@@ -68,9 +71,10 @@ class SplashController extends GetxController {
 
   void fetchProducts() {
     _apiService.fetchProducts(
-      companyCode: 1,
-      resellerCode: 100,
-      listener: ApiListListener<Product>(
+      companyCode: currentCustomer.companyCode,
+      resellerCode: currentCustomer.resellerCode,
+      customerCode: currentCustomer.customerCode,
+      listener: ApiListListener<CustomerProduct>(
         onSuccess: (data) {
           products = data;
           print("Ürünler yüklendi: ${products.length}");
@@ -85,13 +89,14 @@ class SplashController extends GetxController {
 
   void fetchCompanyAccounts() {
     _apiService.fetchCompanyAccounts(
-      companyCode: 1,
-      resellerCode: 100,
-      listener: ApiListListener<CompanyAccount>(
+      companyCode: currentCustomer.companyCode,
+      resellerCode: currentCustomer.resellerCode,
+      customerCode: currentCustomer.customerCode,
+      listener: ApiListListener<CustomerAccount>(
         onSuccess: (data) {
           companyAccounts = data;
           print("Accounts yüklendi: ${companyAccounts.length}");
-          fetchCompanyAccounts();
+          startApp();
         },
         onFail: (error) {
           print("Accounts çekerken hata oluştu: $error");
@@ -109,6 +114,6 @@ class SplashController extends GetxController {
     Config.instance.checkSetCompanyAccounts(companyAccounts);
 
     isLoading.value = false;
-    Get.offNamed('/home');
+    Get.to(() => DashboardPage());
   }
 }

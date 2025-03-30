@@ -1,4 +1,4 @@
-class Product {
+class CustomerProduct {
   final int id;
   final int categoryCode;
   int resellerCode;
@@ -16,7 +16,7 @@ class Product {
   final bool isActive;
   final int companyCode;
 
-  Product({
+  CustomerProduct({
     required this.id,
     required this.categoryCode,
     required this.resellerCode,
@@ -36,8 +36,8 @@ class Product {
   });
 
   // Factory constructor for creating a Product instance from JSON
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
+  factory CustomerProduct.fromJson(Map<String, dynamic> json) {
+    return CustomerProduct(
       id: json['id'],
       categoryCode: json['categoryCode'],
       resellerCode: json['resellerCode'],

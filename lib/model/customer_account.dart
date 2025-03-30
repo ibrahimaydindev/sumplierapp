@@ -1,4 +1,4 @@
-class CompanyAccount {
+class CustomerAccount {
   final int id;
   final int accountCode;
   final String accountName;
@@ -12,7 +12,7 @@ class CompanyAccount {
   int resellerCode;
   String? phoneNumber;
 
-  CompanyAccount({
+  CustomerAccount({
     required this.id,
     required this.accountCode,
     required this.accountName,
@@ -27,9 +27,9 @@ class CompanyAccount {
     this.phoneNumber,
   });
 
-  // Factory constructor for creating a CompanyAccount instance from JSON
-  factory CompanyAccount.fromJson(Map<String, dynamic> json) {
-    return CompanyAccount(
+  // Factory constructor for creating a CustomerAccount instance from JSON
+  factory CustomerAccount.fromJson(Map<String, dynamic> json) {
+    return CustomerAccount(
       id: json['id'],
       accountCode: json['accountCode'],
       accountName: json['accountName'],
@@ -45,7 +45,7 @@ class CompanyAccount {
     );
   }
 
-  // Method to convert a CompanyAccount instance to JSON
+  // Method to convert a CustomerAccount instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
