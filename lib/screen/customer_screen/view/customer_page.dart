@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sumplier/database/pref_helper.dart';
-import 'package:sumplier/enum/config_key.dart';
 import 'package:sumplier/enum/info_message.dart';
+import 'package:sumplier/screen/customer_screen/controller/customer_controller.dart';
 import 'package:sumplier/screen/user_screen/view/user_page.dart';
 
-import '../controller/login_controller.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class CustomerPage extends StatelessWidget {
+  CustomerPage({super.key});
 
-  final loginController = Get.put(LoginController());
+  final loginController = Get.put(CustomerController());
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final RxBool isPasswordHidden = true.obs; // Şifre gizleme durumu

@@ -11,8 +11,12 @@ class Config {
 
   static Config get instance => _instance;
 
-  late Customer _currentCustomer;
-  late User _currentUser;
+  Customer? _currentCustomer;
+  User? _currentUser;
+  List<CustomerMenu> _menus = [];
+  List<CustomerCategory> _categories = [];
+  List<CustomerProduct> _products = [];
+  List<CustomerAccount> _companyAccounts = [];
 
   final Map<int, CustomerMenu> _menuMap = {};
   final Map<int, CustomerCategory> _categoryMap = {};
@@ -20,43 +24,35 @@ class Config {
   final Map<int, CustomerAccount> _accountMap = {};
 
   // Getters and setters
-  Customer getCurrentCustomer() => _currentCustomer;
-  void setCurrentCompany(Customer customer) => _currentCustomer = customer;
+  Customer getCurrentCustomer() => _currentCustomer!;
+  User getCurrentUser() => _currentUser!;
+  List<CustomerMenu> getMenus() => _menus;
+  List<CustomerCategory> getCategories() => _categories;
+  List<CustomerProduct> getProducts() => _products;
+  List<CustomerAccount> getCompanyAccounts() => _companyAccounts;
 
-  User getCurrentUser() => _currentUser;
-  void setCurrentUser(User user) => _currentUser = user;
-
-  void checkSetMenus(List<CustomerMenu> menus){
-    for(CustomerMenu menu in menus){
-      _menuMap[menu.id] = menu;
-    }
+  void setCurrentCompany(Customer customer) {
+    _currentCustomer = customer;
   }
 
-  void checkSetCategories(List<CustomerCategory> categories){
-
-    _categoryMap.clear();
-
-    for(CustomerCategory category in categories){
-      _categoryMap[category.id] = category;
-    }
+  void setCurrentUser(User user) {
+    _currentUser = user;
   }
 
-  void checkSetProducts(List<CustomerProduct> products){
-
-    _productMap.clear();
-
-    for(CustomerProduct product in products){
-      _productMap[product.id] = product;
-    }
+  void checkSetMenus(List<CustomerMenu> menus) {
+    _menus = menus;
   }
 
-  void checkSetCompanyAccounts(List<CustomerAccount> accounts){
+  void checkSetCategories(List<CustomerCategory> categories) {
+    _categories = categories;
+  }
 
-    _accountMap.clear();
+  void checkSetProducts(List<CustomerProduct> products) {
+    _products = products;
+  }
 
-    for(CustomerAccount account in accounts){
-      _accountMap[account.id] = account;
-    }
+  void checkSetCompanyAccounts(List<CustomerAccount> accounts) {
+    _companyAccounts = accounts;
   }
 
   List<CustomerMenu> getAllMenus() {
@@ -68,10 +64,8 @@ class Config {
   }
 
   CustomerAccount? getAccountByCode(int code) {
-
-    for(CustomerAccount account in _accountMap.values){
-
-      if(account.accountCode == code) {
+    for (CustomerAccount account in _accountMap.values) {
+      if (account.accountCode == code) {
         return account;
       }
     }
@@ -80,12 +74,8 @@ class Config {
 
   CustomerMenu getDefaultMenu() {
     var menus = getAllMenus();
-    return menus.firstWhere(
-          (menu) => menu.isActive,
-      orElse: () => menus[0],
-    );
+    return menus.firstWhere((menu) => menu.isActive, orElse: () => menus[0]);
   }
-
 
   List<CustomerCategory> getMenuCategory(CustomerMenu menu) {
     List<CustomerCategory> categories = [];

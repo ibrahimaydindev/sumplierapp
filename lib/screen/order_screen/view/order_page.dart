@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:sumplier/screen/cart_screen/view/cart_page.dart';
+import '../controller/order_controller.dart';
 
 class OrderPage extends StatelessWidget {
-  const OrderPage({super.key});
+  OrderPage({super.key});
+
+  final orderController = Get.put(OrderController());
 
   @override
   Widget build(BuildContext context) {
@@ -9,91 +14,185 @@ class OrderPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back,color: Colors.white,),
-          onPressed: () {
-            Navigator.of(context).pop(); // Geri butonu
-          },
-        ),
-        title: Image.asset(
-          "lib/assets/images/app_logo.png", // Ortadaki logo
-          height: size.height * 0.2,
-        ),
-        centerTitle: true,
+        title: Text('Sipariş Ver'),
         actions: [
-          IconButton(
-            icon: Icon(Icons.shopping_cart,color: Colors.white,), // Sağdaki sepet ikonu
-            onPressed: () {
-              // Sepet işlemleri
-            },
+          // Sepet butonu
+          Stack(
+            children: [
+              IconButton(
+                icon: Icon(Icons.shopping_cart),
+                onPressed: () {
+                  Get.to(() => CartPage());
+                },
+              ),
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Obx(
+                  () => Container(
+                    padding: EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: BoxConstraints(minWidth: 16, minHeight: 16),
+                    child: Text(
+                      '${orderController.totalSelectedProducts}',
+                      style: TextStyle(color: Colors.white, fontSize: 10),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
-        backgroundColor: Colors.blue,
       ),
       body: Row(
         children: [
-          // Sol kısım: Menüler
+          // Sol taraf - Kategoriler (1/3)
           Container(
-            width: size.width * 0.3, // Ekranın 3'te 1'i
-            color: Colors.grey[200],
-            child: ListView.builder(
-              itemCount: 10, // Menü sayısı
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text("Menü ${index + 1}"),
-                  onTap: () {
-                    // Menü seçimi işlemleri
-                  },
-                );
-              },
+            width: size.width * 0.33,
+            decoration: BoxDecoration(
+              border: Border(right: BorderSide(color: Colors.grey)),
+            ),
+            child: Column(
+              children: [
+                // Seçili menü başlığı
+
+                // Kategori listesi
+                Expanded(
+                  child: Obx(
+                    () => ListView.builder(
+                      itemCount: orderController.categories.length,
+                      itemBuilder: (context, index) {
+                        final category = orderController.categories[index];
+                        final isSelected = orderController.selectedCategory.value?.categoryCode == category.categoryCode;
+                        
+                        return GestureDetector(
+                          onTap: () {
+                            orderController.onCategorySelected(category);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isSelected ? Colors.blue.withOpacity(0.15) : Colors.transparent,
+                              border: Border(
+                                bottom: BorderSide(color: Colors.grey.withOpacity(0.2)),
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: isSelected
+                                  ? [
+                                      BoxShadow(
+                                        color: Colors.blue.withOpacity(0.1),
+                                        blurRadius: 4,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            child: ListTile(
+                              selected: isSelected,
+                              title: Text(
+                                category.categoryName,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  color: isSelected ? Colors.blue : Colors.black87,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          // Sağ kısım: Ürünler
+
+          // Sağ taraf - Ürünler (2/3)
           Expanded(
-            child: Container(
-              color: Colors.white,
-              child: GridView.builder(
-                padding: EdgeInsets.all(16.0),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: size.width > 600 ? 3 : 2, // Responsive sütun sayısı
-                  crossAxisSpacing: 16.0,
-                  mainAxisSpacing: 16.0,
-                  childAspectRatio: 3 / 4, // Ürün kartlarının oranı
+            child: Column(
+              children: [
+                // Seçili kategori başlığı
+
+                // Ürün grid'i
+                Expanded(
+                  child: Obx(
+                    () => GridView.builder(
+                      padding: EdgeInsets.all(16),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.8,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemCount: orderController.products.length,
+                      itemBuilder: (context, index) {
+                        final product = orderController.products[index];
+                        return Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: GestureDetector(
+                            onTap: () => orderController.addToCart(product),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Ürün resmi
+                                Expanded(
+                                  flex: 3,
+                                  child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(12),
+                                      ),
+                                      image: DecorationImage(
+                                        image: NetworkImage(product.image ?? ""),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // Ürün adı
+                                Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.vertical(
+                                        bottom: Radius.circular(12),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        product.productName,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
-                itemCount: 20, // Ürün sayısı
-                itemBuilder: (context, index) {
-                  return Card(
-                    elevation: 4.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.image,
-                          size: size.width * 0.1,
-                          color: Colors.grey,
-                        ),
-                        SizedBox(height: 8.0),
-                        Text(
-                          "Ürün ${index + 1}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4.0),
-                        Text(
-                          "₺${(index + 1) * 10}",
-                          style: TextStyle(
-                            color: Colors.green,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+              ],
             ),
           ),
         ],

@@ -7,8 +7,8 @@ import '../../../database/pref_helper.dart';
 import '../../../enum/config_key.dart';
 import '../../../listener/ApiObjectListener.dart';
 
-class LoginController extends GetxController {
-  final ApiService _apiService = ApiService();
+class CustomerController extends GetxController {
+  final ApiService _apiService = Get.find<ApiService>();
   var customer = Rx<Customer?>(null);
   var isLoading = false.obs;
 

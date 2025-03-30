@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sumplier/screen/splash_screen/splash_page.dart';
+import 'package:sumplier/screen/splash_screen/view/splash_page.dart';
 import 'package:sumplier/screen/user_screen/controller/user_controller.dart';
 
 class UserPage extends StatefulWidget {

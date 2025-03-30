@@ -200,4 +200,55 @@ class ApiService extends GetxService {
       listener.onFail("Hesaplar alınırken hata oluştu: $e");
     }
   }
+
+  // Menü listesi almak için GET isteği
+  Future<List<CustomerMenu>> getMenuList() async {
+    try {
+      final dio.Response response = await _dio.get('/GetMenus');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = response.data;
+        final menus = jsonList.map((json) => CustomerMenu.fromJson(json)).toList();
+        return menus;
+      } else {
+        throw Exception('Menü listesi alınamadı');
+      }
+    } catch (e) {
+      throw Exception("Menü listesi hatası: $e");
+    }
+  }
+
+  // Kategori listesi almak için GET isteği
+  Future<List<CustomerCategory>> getCategoryList() async {
+    try {
+      final dio.Response response = await _dio.get('/GetCategories');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = response.data;
+        final categories = jsonList.map((json) => CustomerCategory.fromJson(json)).toList();
+        return categories;
+      } else {
+        throw Exception('Kategori listesi alınamadı');
+      }
+    } catch (e) {
+      throw Exception("Kategori listesi hatası: $e");
+    }
+  }
+
+  // Ürün listesi almak için GET isteği
+  Future<List<CustomerProduct>> getProductList() async {
+    try {
+      final dio.Response response = await _dio.get('/GetProducts');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = response.data;
+        final products = jsonList.map((json) => CustomerProduct.fromJson(json)).toList();
+        return products;
+      } else {
+        throw Exception('Ürün listesi alınamadı');
+      }
+    } catch (e) {
+      throw Exception("Ürün listesi hatası: $e");
+    }
+  }
 }
