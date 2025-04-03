@@ -1,4 +1,5 @@
-import 'ticker_order_.dart';
+import 'package:sumplier/model/ticker_order.dart';
+
 
 class Ticket {
   int id;

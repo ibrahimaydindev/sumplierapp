@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sumplier/Config/config.dart';
 import 'package:sumplier/model/customer.dart';
+import 'package:sumplier/screen/cart_screen/view/cart_page.dart';
+import 'package:sumplier/screen/customer_screen/view/customer_page.dart';
 import 'package:sumplier/screen/dashboard_screen/view/dashboard_page.dart';
-import 'package:sumplier/screen/login_screen/view/login_page.dart';
-import 'package:sumplier/screen/splash_screen/splash_page.dart';
+import 'package:sumplier/screen/splash_screen/view/splash_page.dart';
 import 'package:sumplier/screen/user_screen/view/user_page.dart';
 
 import 'database/pref_helper.dart';
 import 'enum/config_key.dart';
+import 'api/api_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +22,10 @@ Future<void> main() async {
     Config.instance.setCurrentCompany(currentCustomer);
   }
 
-  runApp(MyApp(initialRoute: currentCustomer != null ? '/UserPage' : '/LoginPage'));
+  // ApiService'i initialize et
+  Get.put(ApiService());
+
+  runApp(MyApp(initialRoute: currentCustomer != null ? '/UserPage' : '/CustomerPage'));
 }
 
 class MyApp extends StatelessWidget {
@@ -35,10 +40,11 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       initialRoute: initialRoute,
       getPages: [
-        GetPage(name: '/LoginPage', page: () => LoginPage()),
+        GetPage(name: '/CustomerPage', page: () => CustomerPage()),
         GetPage(name: '/UserPage', page: () => UserPage()),
         GetPage(name: '/SplashPage', page: () => SplashPage()),
-        GetPage(name: '/DashboardPage', page: () => DashboardPage())
+        GetPage(name: '/DashboardPage', page: () => DashboardPage()),
+        GetPage(name: '/CartPage', page: () => CartPage())
       ],
     );
   }

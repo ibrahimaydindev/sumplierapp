@@ -1,9 +1,9 @@
 enum PrefKeys {
-  USER('user'),
-  COMPANY('company'),
-  MENUS('menus'),
-  CATEGORIES('categories'),
-  PRODUCTS('products');
+  user('user'),
+  company('company'),
+  menus('menus'),
+  categories('categories'),
+  products('products');
 
   final String name;
   const PrefKeys(this.name);
