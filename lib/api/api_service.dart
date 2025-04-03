@@ -2,6 +2,7 @@ import 'package:dio/dio.dart' as dio; // Alias Dio
 import 'package:get/get.dart'; // GetX library (no need to alias here)
 import 'package:get/get_connect/http/src/request/request.dart';
 import 'package:sumplier/listener/ApiMessageListener.dart';
+import 'package:sumplier/enum/api_endpoint.dart';
 import 'package:sumplier/model/customer.dart';
 import 'package:sumplier/model/geo_location.dart';
 import '../listener/ApiObjectListener.dart';
@@ -24,7 +25,6 @@ class ApiService extends GetxService {
     _dio.options.receiveTimeout = const Duration(seconds: 15);
   }
 
-
   // Şirket girişi yapmak için GET isteği (Eski API yoluyla)
   Future<void> getCustomerLogin({
     required String email,
@@ -33,7 +33,7 @@ class ApiService extends GetxService {
   }) async {
     try {
       final dio.Response response = await _dio.get(
-        '/Customer/GetCustomerLogin',
+        ApiEndpoint.customerLogin.endpoint,
         queryParameters: {'email': email, 'password': password},
       );
 
@@ -55,7 +55,7 @@ class ApiService extends GetxService {
   }) async {
     try {
       final dio.Response response = await _dio.get(
-        '/Users/GetUserLogin',
+        ApiEndpoint.userLogin.endpoint,
         queryParameters: {'email': email, 'password': password},
       );
 
@@ -78,7 +78,7 @@ class ApiService extends GetxService {
   }) async {
     try {
       final dio.Response response = await _dio.get(
-        '/CustomerMenu/GetMenu',
+        ApiEndpoint.fetchMenus.endpoint,
         queryParameters: {
           'companyCode': companyCode,
           'resellerCode': resellerCode,
@@ -87,9 +87,10 @@ class ApiService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        List<CustomerMenu> menus = (response.data as List)
-            .map((menu) => CustomerMenu.fromJson(menu))
-            .toList();
+        List<CustomerMenu> menus =
+            (response.data as List)
+                .map((menu) => CustomerMenu.fromJson(menu))
+                .toList();
         if (menus.isNotEmpty) {
           listener.onSuccess(menus);
         } else {
@@ -112,7 +113,7 @@ class ApiService extends GetxService {
   }) async {
     try {
       final dio.Response response = await _dio.get(
-        '/CustomerCategory/GetCategory',
+        ApiEndpoint.fetchCategories.endpoint,
         queryParameters: {
           'companyCode': companyCode,
           'resellerCode': resellerCode,
@@ -121,9 +122,10 @@ class ApiService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        List<CustomerCategory> categories = (response.data as List)
-            .map((category) => CustomerCategory.fromJson(category))
-            .toList();
+        List<CustomerCategory> categories =
+            (response.data as List)
+                .map((category) => CustomerCategory.fromJson(category))
+                .toList();
         if (categories.isNotEmpty) {
           listener.onSuccess(categories);
         } else {
@@ -146,7 +148,7 @@ class ApiService extends GetxService {
   }) async {
     try {
       final dio.Response response = await _dio.get(
-        '/CustomerProduct/GetProductAll',
+        ApiEndpoint.fetchProducts.endpoint,
         queryParameters: {
           'companyCode': companyCode,
           'resellerCode': resellerCode,
@@ -155,9 +157,10 @@ class ApiService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        List<CustomerProduct> products = (response.data as List)
-            .map((product) => CustomerProduct.fromJson(product))
-            .toList();
+        List<CustomerProduct> products =
+            (response.data as List)
+                .map((product) => CustomerProduct.fromJson(product))
+                .toList();
         if (products.isNotEmpty) {
           listener.onSuccess(products);
         } else {
@@ -179,7 +182,7 @@ class ApiService extends GetxService {
   }) async {
     try {
       final dio.Response response = await _dio.get(
-        '/CustomerAccount/GetCustomerAccountAll',
+        ApiEndpoint.fetchCompanyAccounts.endpoint,
         queryParameters: {
           'companyCode': companyCode,
           'resellerCode': resellerCode,
@@ -188,9 +191,10 @@ class ApiService extends GetxService {
       );
 
       if (response.statusCode == 200) {
-        List<CustomerAccount> accounts = (response.data as List)
-            .map((json) => CustomerAccount.fromJson(json))
-            .toList();
+        List<CustomerAccount> accounts =
+            (response.data as List)
+                .map((json) => CustomerAccount.fromJson(json))
+                .toList();
         if (accounts.isNotEmpty) {
           listener.onSuccess(accounts);
         } else {
@@ -211,8 +215,7 @@ Future<void> postGeoLocation({
   try {
 
     print("Gönderilen veri: ${location.toJson()}");
-
-    final dio.Response response = await _dio.post(
+      final dio.Response response = await _dio.post(
       '/UsersGeoLocation/PostGeoLocation',
       data: location.toJson(),
       options: dio.Options(
@@ -221,15 +224,36 @@ Future<void> postGeoLocation({
         },
       ),
     );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      listener.onSuccess();
-    } else {
-      listener.onFail("Failed");
+  
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = response.data;
+        final menus =
+            jsonList.map((json) => CustomerMenu.fromJson(json)).toList();
+        return menus;
+      } else {
+        throw Exception('Menü listesi alınamadı');
+      }
+    } catch (e) {
+      throw Exception("Menü listesi hatası: $e");
     }
-  } catch (e) {
-    listener.onFail("Hesaplar alınırken hata oluştu: $e");
   }
-}
+
+  // Ürün listesi almak için GET isteği
+  Future<List<CustomerProduct>> getProductList() async {
+    try {
+      final dio.Response response = await _dio.get('/GetProducts');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = response.data;
+        final products =
+            jsonList.map((json) => CustomerProduct.fromJson(json)).toList();
+        return products;
+      } else {
+        throw Exception('Ürün listesi alınamadı');
+      }
+    } catch (e) {
+      throw Exception("Ürün listesi hatası: $e");
+    }
+  }
 
 }
