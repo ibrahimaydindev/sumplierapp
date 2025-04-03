@@ -14,7 +14,7 @@ import '../model/customer_product.dart';
 import '../model/user_model.dart';
 
 class ApiService extends GetxService {
-  final dio.Dio _dio = dio.Dio(); // Dio instance with alias
+  final dio.Dio _dio = dio.Dio();
 
   ApiService() {
     // Base URL'i güncelliyoruz
@@ -215,7 +215,8 @@ Future<void> postGeoLocation({
   try {
 
     print("Gönderilen veri: ${location.toJson()}");
-      final dio.Response response = await _dio.post(
+
+    final dio.Response response = await _dio.post(
       '/UsersGeoLocation/PostGeoLocation',
       data: location.toJson(),
       options: dio.Options(
@@ -224,19 +225,16 @@ Future<void> postGeoLocation({
         },
       ),
     );
-  
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonList = response.data;
-        final menus =
-            jsonList.map((json) => CustomerMenu.fromJson(json)).toList();
-        return menus;
-      } else {
-        throw Exception('Menü listesi alınamadı');
-      }
-    } catch (e) {
-      throw Exception("Menü listesi hatası: $e");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      listener.onSuccess();
+    } else {
+      listener.onFail("Failed");
     }
+  } catch (e) {
+    listener.onFail("Hesaplar alınırken hata oluştu: $e");
   }
+}
 
   // Ürün listesi almak için GET isteği
   Future<List<CustomerProduct>> getProductList() async {
