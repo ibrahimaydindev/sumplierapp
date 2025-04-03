@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:sumplier/screen/dashboard_screen/controller/dashboard_controller.dart';
 import 'package:sumplier/screen/order_screen/view/order_page.dart';
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+  DashboardPage({super.key});
+  
+  final dashboardController = Get.put(DashboardController());
 
   @override
   _DashboardPageState createState() => _DashboardPageState();

@@ -1,7 +1,10 @@
 import 'package:dio/dio.dart' as dio; // Alias Dio
 import 'package:get/get.dart'; // GetX library (no need to alias here)
+import 'package:get/get_connect/http/src/request/request.dart';
+import 'package:sumplier/listener/ApiMessageListener.dart';
 import 'package:sumplier/enum/api_endpoint.dart';
 import 'package:sumplier/model/customer.dart';
+import 'package:sumplier/model/geo_location.dart';
 import '../listener/ApiObjectListener.dart';
 import '../listener/ApiListListener.dart';
 import '../model/customer_category.dart';
@@ -205,11 +208,23 @@ class ApiService extends GetxService {
     }
   }
 
-  // Menü listesi almak için GET isteği
-  Future<List<CustomerMenu>> getMenuList() async {
-    try {
-      final dio.Response response = await _dio.get('/GetMenus');
+Future<void> postGeoLocation({
+  required GeoLocation location,
+  required ApiMessageListener listener,
+}) async {
+  try {
 
+    print("Gönderilen veri: ${location.toJson()}");
+      final dio.Response response = await _dio.post(
+      '/UsersGeoLocation/PostGeoLocation',
+      data: location.toJson(),
+      options: dio.Options(
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ),
+    );
+  
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = response.data;
         final menus =
@@ -220,24 +235,6 @@ class ApiService extends GetxService {
       }
     } catch (e) {
       throw Exception("Menü listesi hatası: $e");
-    }
-  }
-
-  // Kategori listesi almak için GET isteği
-  Future<List<CustomerCategory>> getCategoryList() async {
-    try {
-      final dio.Response response = await _dio.get('/GetCategories');
-
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonList = response.data;
-        final categories =
-            jsonList.map((json) => CustomerCategory.fromJson(json)).toList();
-        return categories;
-      } else {
-        throw Exception('Kategori listesi alınamadı');
-      }
-    } catch (e) {
-      throw Exception("Kategori listesi hatası: $e");
     }
   }
 
@@ -258,4 +255,5 @@ class ApiService extends GetxService {
       throw Exception("Ürün listesi hatası: $e");
     }
   }
+
 }

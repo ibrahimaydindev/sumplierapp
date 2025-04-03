@@ -31,7 +31,7 @@ class Config {
   List<CustomerProduct> getProducts() => _products;
   List<CustomerAccount> getCompanyAccounts() => _companyAccounts;
 
-  void setCurrentCompany(Customer customer) {
+  void setCurrentCustomer(Customer customer) {
     _currentCustomer = customer;
   }
 

@@ -23,7 +23,7 @@ class CustomerController extends GetxController {
           onSuccess: (customerData) {
             customer.value = customerData;
             PrefHelper.saveModel(ConfigKey.customer.name, customerData);
-            Config.instance.setCurrentCompany(customerData);
+            Config.instance.setCurrentCustomer(customerData);
           },
           onFail: (errorMessage) {
             Logger().e("Şirket girişi hatası: $errorMessage"); // Hata durumunda log yazdır
