@@ -19,7 +19,7 @@ Future<void> main() async {
   Customer? currentCustomer = PrefHelper.getModel(ConfigKey.customer.name,  (json) => Customer.fromJson(json));
 
   if(currentCustomer != null) {
-    Config.instance.setCurrentCompany(currentCustomer);
+    Config.instance.setCurrentCustomer(currentCustomer);
   }
 
   // ApiService'i initialize et

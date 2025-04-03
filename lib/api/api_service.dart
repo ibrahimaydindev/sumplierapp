@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart' as dio; // Alias Dio
 import 'package:get/get.dart'; // GetX library (no need to alias here)
+import 'package:get/get_connect/http/src/request/request.dart';
+import 'package:sumplier/listener/ApiMessageListener.dart';
 import 'package:sumplier/model/customer.dart';
+import 'package:sumplier/model/geo_location.dart';
 import '../listener/ApiObjectListener.dart';
 import '../listener/ApiListListener.dart';
 import '../model/customer_category.dart';
@@ -201,54 +204,32 @@ class ApiService extends GetxService {
     }
   }
 
-  // Menü listesi almak için GET isteği
-  Future<List<CustomerMenu>> getMenuList() async {
-    try {
-      final dio.Response response = await _dio.get('/GetMenus');
+Future<void> postGeoLocation({
+  required GeoLocation location,
+  required ApiMessageListener listener,
+}) async {
+  try {
 
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonList = response.data;
-        final menus = jsonList.map((json) => CustomerMenu.fromJson(json)).toList();
-        return menus;
-      } else {
-        throw Exception('Menü listesi alınamadı');
-      }
-    } catch (e) {
-      throw Exception("Menü listesi hatası: $e");
+    print("Gönderilen veri: ${location.toJson()}");
+
+    final dio.Response response = await _dio.post(
+      '/UsersGeoLocation/PostGeoLocation',
+      data: location.toJson(),
+      options: dio.Options(
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      listener.onSuccess();
+    } else {
+      listener.onFail("Failed");
     }
+  } catch (e) {
+    listener.onFail("Hesaplar alınırken hata oluştu: $e");
   }
+}
 
-  // Kategori listesi almak için GET isteği
-  Future<List<CustomerCategory>> getCategoryList() async {
-    try {
-      final dio.Response response = await _dio.get('/GetCategories');
-
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonList = response.data;
-        final categories = jsonList.map((json) => CustomerCategory.fromJson(json)).toList();
-        return categories;
-      } else {
-        throw Exception('Kategori listesi alınamadı');
-      }
-    } catch (e) {
-      throw Exception("Kategori listesi hatası: $e");
-    }
-  }
-
-  // Ürün listesi almak için GET isteği
-  Future<List<CustomerProduct>> getProductList() async {
-    try {
-      final dio.Response response = await _dio.get('/GetProducts');
-
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonList = response.data;
-        final products = jsonList.map((json) => CustomerProduct.fromJson(json)).toList();
-        return products;
-      } else {
-        throw Exception('Ürün listesi alınamadı');
-      }
-    } catch (e) {
-      throw Exception("Ürün listesi hatası: $e");
-    }
-  }
 }
