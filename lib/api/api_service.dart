@@ -15,7 +15,7 @@ class ApiService extends GetxService {
 
   ApiService() {
     // Base URL'i güncelliyoruz
-    _dio.options.baseUrl = ApiEndpoint.baseUrl.endpoint;
+    _dio.options.baseUrl = 'https://api.sumplier.com/SumplierAPI';
 
     // Timeout yapılandırmaları
     _dio.options.connectTimeout = const Duration(seconds: 15);
@@ -52,7 +52,7 @@ class ApiService extends GetxService {
   }) async {
     try {
       final dio.Response response = await _dio.get(
-        ApiEndpoint.customerLogin.endpoint,
+        ApiEndpoint.userLogin.endpoint,
         queryParameters: {'email': email, 'password': password},
       );
 

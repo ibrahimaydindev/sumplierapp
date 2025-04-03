@@ -67,38 +67,56 @@ class OrderPage extends StatelessWidget {
                       itemCount: orderController.categories.length,
                       itemBuilder: (context, index) {
                         final category = orderController.categories[index];
-                        final isSelected = orderController.selectedCategory.value?.categoryCode == category.categoryCode;
-                        
+                        final isSelected =
+                            orderController
+                                .selectedCategory
+                                .value
+                                ?.categoryCode ==
+                            category.categoryCode;
+
                         return GestureDetector(
                           onTap: () {
                             orderController.onCategorySelected(category);
                           },
                           child: Container(
                             decoration: BoxDecoration(
-                              color: isSelected ? Colors.blue.withOpacity(0.15) : Colors.transparent,
+                              color:
+                                  isSelected
+                                      ? Colors.blue.withOpacity(0.15)
+                                      : Colors.transparent,
                               border: Border(
-                                bottom: BorderSide(color: Colors.grey.withOpacity(0.2)),
+                                bottom: BorderSide(
+                                  color: Colors.grey.withOpacity(0.2),
+                                ),
                               ),
                               borderRadius: BorderRadius.circular(8),
-                              boxShadow: isSelected
-                                  ? [
-                                      BoxShadow(
-                                        color: Colors.blue.withOpacity(0.1),
-                                        blurRadius: 4,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ]
-                                  : null,
+                              boxShadow:
+                                  isSelected
+                                      ? [
+                                        BoxShadow(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          blurRadius: 4,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ]
+                                      : null,
                             ),
-                            margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            margin: EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             child: ListTile(
                               selected: isSelected,
                               title: Text(
                                 category.categoryName,
                                 style: TextStyle(
                                   fontSize: 14,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  color: isSelected ? Colors.blue : Colors.black87,
+                                  fontWeight:
+                                      isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                  color:
+                                      isSelected ? Colors.blue : Colors.black87,
                                 ),
                               ),
                             ),
@@ -152,9 +170,37 @@ class OrderPage extends StatelessWidget {
                                         top: Radius.circular(12),
                                       ),
                                       image: DecorationImage(
-                                        image: NetworkImage(product.image ?? ""),
+                                        image: product.image != null &&
+                                                product.image!.isNotEmpty
+                                            ? NetworkImage(product.image!)
+                                            : AssetImage(
+                                                    'assets/app_logo.png',
+                                                  )
+                                                as ImageProvider, // Yedek resim
                                         fit: BoxFit.cover,
                                       ),
+                                    ),
+                                    // Using Image.network for better control
+                                    child: Image.network(
+                                      product.image ?? '',
+                                      fit: BoxFit.cover,
+                                      loadingBuilder: (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        } else {
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              value: loadingProgress.expectedTotalBytes != null
+                                                  ? loadingProgress.cumulativeBytesLoaded /
+                                                      (loadingProgress.expectedTotalBytes ?? 1)
+                                                  : null,
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Center(child: Icon(Icons.error)); // Error icon
+                                      },
                                     ),
                                   ),
                                 ),
